@@ -5,6 +5,9 @@ import './index.css';
 import App from './App';
 // import 'antd/dist/antd.css';
 
+import storageUtils from './utils/storageUtils.js';
+import memeoryUtils from './utils/memeoryUtils.js';
+memeoryUtils.user = storageUtils.getUser();
 
 ReactDOM.render(<App />, document.getElementById('root'));
 

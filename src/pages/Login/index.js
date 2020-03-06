@@ -2,24 +2,43 @@
 import React from 'react';
 //引入login的less文件
 import './index.less';
+//引入路由
+import { Redirect } from 'react-router-dom'
 //引入图片
 import Image from "./images/logo.png";
 //引入组件
-import { Form, Input, Button, Icon } from 'antd';
+import { Form, Input, Button, Icon, message } from 'antd';
 //引入图标
 // import { UserOutlined, LockOutlined } from '@ant-design/icons';
-
+//引入api
+import { reqLogin } from '../../api'
+//引入memeoryUtils
+import memeoryUtils from '../../utils/memeoryUtils.js'
+//引入storageUtils
+import storageUtils from '../../utils/storageUtils.js'
 class Login extends React.Component {
   //提交表单事件
   handleSubmit = (e) => {
     //阻止事件默认行为
     e.preventDefault();
-    this.props.form.validateFields((err, values) => {
-      //校验成功
+    //对所有表单进行校验
+    this.props.form.validateFields(async (err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
+        const { username, password } = values
+        const { data: res } = await reqLogin(username, password);
+        console.log(res)
+        if (res.status == 0) {
+          //将输入的用户名存起来
+          memeoryUtils.user = res.data;
+          storageUtils.savaUser(res.data);
+          message.success('登录成功');
+          //跳转到管理界面
+          this.props.history.replace('/');
+        } else {
+          message.error('用户名或者密码错误')
+        }
       } else {
-        // console.log(err.errors);
+        console.log('校验失败')
       }
     });
   }
@@ -53,6 +72,10 @@ class Login extends React.Component {
     }
   }
   render() {
+    const user = memeoryUtils.user;
+    if (user && user._id) {
+      return <Redirect to='/' />
+    }
     const { getFieldDecorator } = this.props.form;
     return (
       <div className='login'>
@@ -117,4 +140,9 @@ export default WrappedNormalLoginForm;
 
 //配置对象
 
+//async 和 await
+
+//作用  简化Promise 对象的使用；不再使用then（）来指定成功或者失败；
+
+//以同步的编码方式实现异步操作；
 
